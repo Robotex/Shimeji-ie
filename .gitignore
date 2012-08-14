@@ -1,6 +1,8 @@
+*.lock
+*.swp
+*.out
 *.class
-
-# Package Files #
-*.jar
-*.war
-*.ear
+*.log
+bin/
+conf2/
+img2/
