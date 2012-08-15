@@ -28,8 +28,8 @@
 		<delete dir="target/classes" />
 	</target>
 
-	<target name="zip_package">
-		<zip destfile="target/Shimeji_${version}.zip" encoding="Windows-31J">
+	<target name="zip_package" depends="jar">
+		<zip destfile="target/Shimeji-ie_${version}.zip" encoding="Windows-31J">
 			<fileset dir="target">
 				<include name="Shimeji.jar" />
 			</fileset>
@@ -42,8 +42,8 @@
 		</zip>
 	</target>
 
-	<target name="jar_package">
-		<jar destfile="target/Shimeji_${version}.jar">
+	<target name="jar_package" depends="jar">
+		<jar destfile="target/Shimeji-ie_${version}.jar">
 			<fileset dir="target">
 				<include name="Shimeji.jar" />
 			</fileset>
@@ -56,10 +56,7 @@
 		</jar>
 	</target>
 	
-	<target name="win-x86">
-	</target>
-	
-	<target name="win-x86-installer">
+	<target name="win-x86" depends="jar">
 		<copy todir="target">
 			<fileset dir=".">
 				<include name="LICENSE.txt"/>
@@ -69,6 +66,15 @@
 			</fileset>
 			<file file="tools/Shimeji.exe" />
 		</copy>
+	</target>
+	
+	<target name="win-x86-zip_package" depends="zip_package">
+		<zip destfile="target/Shimeji-ie_${version}_win_x86.zip" encoding="Windows-31J" update="true">
+			<zipfileset dir="tools" includes="Shimeji.exe" />
+		</zip>
+	</target>
+	
+	<target name="win-x86-installer" depends="jar,win-x86">
 		<property environment="env"/>
 		<exec executable="${env.ProgramFiles(x86)}/NSIS/makensis.exe">
 			<arg value="/V3" />
