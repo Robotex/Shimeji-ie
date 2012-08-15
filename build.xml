@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="Windows-31J" ?>
 <project name="Shimeji" basedir="." default="zip">
 
-	<property name="version" value="1_0_0" />
+	<property name="version_major" value="1" />
+	<property name="version_minor" value="0" />
+	<property name="version_build" value="0" />
+	<property name="version" value="${version_major}_${version_minor}_${version_build}" />
 
 	<target name="clean">
 		<delete dir="target" />
@@ -22,73 +25,56 @@
 
 	<target name="jar" depends="compile">
 		<jar destfile="target/Shimeji.jar" basedir="target/classes" manifest="MANIFEST.MF" />
-	</target>
-
-	<target name="zip" depends="jar">
-		<zip destfile="target/src.zip">
-			<fileset dir=".">
-				<include name="**/*" />
-				<exclude name="target/**/*" />
-				<exclude name="target" />
-			</fileset>
-		</zip>
-
-		<ant target="zip_package">
-			<property name="edition" value="" />
-		</ant>
+		<delete dir="target/classes" />
 	</target>
 
 	<target name="zip_package">
-
-		<mkdir dir="target/${edition}/conf" />
-		<copy tofile="target/${edition}/conf/Behavior.xml"
-			file="conf/${edition}Behavior.xml" />
-
 		<zip destfile="target/Shimeji_${version}.zip" encoding="Windows-31J">
 			<fileset dir="target">
 				<include name="Shimeji.jar" />
-				<include name="src.zip" />
-			</fileset>
-			<fileset dir="target/${edition}">
-				<include name="conf/**/*" />
 			</fileset>
 			<fileset dir=".">
-				<include name="Shimeji.exe"/>
-				<include name="GO WEBSITE.url"/>
-				<include name="LISENCE.txt"/>
-				<include name="README.txt"/>
+				<include name="LICENSE.txt"/>
 				<include name="img/**/*" />
 				<include name="conf/**/*" />
-				<exclude name="conf/*Behavior.xml" />
 				<include name="lib/*" />
 			</fileset>
 		</zip>
 	</target>
 
 	<target name="jar_package">
-
-		<mkdir dir="target/${edition}/conf" />
-		<copy tofile="target/${edition}/conf/Behavior.xml"
-			file="conf/${edition}Behavior.xml" />
-
-		<jar destfile="target/Shimeji_${version}_${edition}.jar">
+		<jar destfile="target/Shimeji_${version}.jar">
 			<fileset dir="target">
 				<include name="Shimeji.jar" />
-				<include name="src.zip" />
-			</fileset>
-			<fileset dir="target/${edition}">
-				<include name="conf/**/*" />
 			</fileset>
 			<fileset dir=".">
-				<include name="Shimeji.exe"/>
-				<include name="GO WEBSITE.url"/>
-				<include name="LISENCE.txt"/>
-				<include name="README.txt"/>
+				<include name="LICENSE.txt"/>
 				<include name="img/**/*" />
 				<include name="conf/**/*" />
-				<exclude name="conf/*Behavior.xml" />
 				<include name="lib/*" />
 			</fileset>
 		</jar>
+	</target>
+	
+	<target name="win-x86">
+	</target>
+	
+	<target name="win-x86-installer">
+		<copy todir="target">
+			<fileset dir=".">
+				<include name="LICENSE.txt"/>
+				<include name="img/**/*" />
+				<include name="conf/**/*" />
+				<include name="lib/*" />
+			</fileset>
+			<file file="tools/Shimeji.exe" />
+		</copy>
+		<property environment="env"/>
+		<exec executable="${env.ProgramFiles(x86)}/NSIS/makensis.exe">
+			<arg value="/V3" />
+			<arg value="/DVERSION=${version_major}.${version_minor}.${version_build}" />
+			<arg value="tools/setup.nsi" />
+		</exec>
+		<move file="target/shimeji-ie_setup.exe" tofile="target/Shimeji-ie_${version}_win_x86.exe" />
 	</target>
 </project>
