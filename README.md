@@ -1,4 +1,4 @@
-Shimeji-ie
+Shimeji-ie (Italian Enhanced)
 ==========
 
 Italian translation of the Shimeji desktop mascot.
@@ -9,17 +9,20 @@ Shimeji was originally created by Yuki Yamada of Group Finity (http://www.group-
 
 Installation guide:
 ----------
-* Download your preferred package from http://github.com/Robotex/Shimeji-ie/downloads
-* Launch the setup (installer package) or extract the archive into a folder (compressed archive package)
-* Run Shimeji
+
+1. Download your preferred package from http://github.com/Robotex/Shimeji-ie/downloads
+2. Launch the setup (installer package) or extract the archive into a folder (compressed archive package)
+3. Run Shimeji
 
 Changelog
 ----------
+
 > [1.0.0]
 > Basic actions translated
 > Added installer
 
 TODO/Incoming features
 ----------
-> "Drop & play" system
-> Show different Shimeji
+
+* "Drop & play" system
+* Show different Shimeji
