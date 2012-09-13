@@ -1,3 +1,5 @@
+/**Shimeji-ie*/
+
 package com.group_finity.mascot.config;
 
 import java.io.IOException;
@@ -22,6 +24,7 @@ import com.group_finity.mascot.exception.ConfigurationException;
 import com.group_finity.mascot.exception.VariableException;
 import com.group_finity.mascot.script.Variable;
 import com.group_finity.mascot.script.VariableMap;
+import com.group_finity.mascot.config.Settings;
 
 public class ActionBuilder implements IActionBuilder {
 
@@ -39,27 +42,27 @@ public class ActionBuilder implements IActionBuilder {
 
 	private final List<IActionBuilder> actionRefs = new ArrayList<IActionBuilder>();
 
-	public ActionBuilder(final Configuration configuration, final Entry actionNode) throws IOException {
-		this.name = actionNode.getAttribute("名前");
-		this.type = actionNode.getAttribute("種類");
-		this.className = actionNode.getAttribute("クラス");
+	public ActionBuilder(final Configuration configuration, final Entry actionNode, final String packageName) throws IOException {
+		this.name = actionNode.getAttribute(Settings.getString("shimeji.mapper.name","名前"));
+		this.type = actionNode.getAttribute(Settings.getString("shimeji.mapper.type","種類"));
+		this.className = actionNode.getAttribute(Settings.getString("shimeji.mapper.class","クラス"));
 
-		log.log(Level.INFO, "動作読み込み開始({0})", this);
+		log.log(Level.INFO, "Starting reading behavior({0})", this);
 
 		this.getParams().putAll(actionNode.getAttributes());
-		for (final Entry node : actionNode.selectChildren("アニメーション")) {
-			this.getAnimationBuilders().add(new AnimationBuilder(node));
+		for (final Entry node : actionNode.selectChildren(Settings.getString("shimeji.mapper.animation","アニメーション"))) {
+			this.getAnimationBuilders().add(new AnimationBuilder(node, packageName));
 		}
 
 		for (final Entry node : actionNode.getChildren()) {
-			if (node.getName().equals("動作参照")) {
+			if (node.getName().equals(Settings.getString("shimeji.mapper.action_reference","動作参照"))) {
 				this.getActionRefs().add(new ActionRef(configuration, node));
-			} else if (node.getName().equals("動作")) {
-				this.getActionRefs().add(new ActionBuilder(configuration, node));
+			} else if (node.getName().equals(Settings.getString("shimeji.mapper.action","動作"))) {
+				this.getActionRefs().add(new ActionBuilder(configuration, node, packageName));
 			}
 		}
 
-		log.log(Level.INFO, "動作読み込み完了");
+		log.log(Level.INFO, "Read operation complete");
 	}
 
 	@Override
@@ -71,16 +74,16 @@ public class ActionBuilder implements IActionBuilder {
 	public Action buildAction(final Map<String, String> params) throws ActionInstantiationException {
 
 		try {
-			// 変数マップを生成
+			// Generates a variables map
 			final VariableMap variables = createVariables(params);
 
-			// アニメーションを生成
+			// Generates an animation
 			final List<Animation> animations = createAnimations();
 
-			// 子アクションを生成
+			// Generates a child action
 			final List<Action> actions = createActions();
 
-			if (this.type.equals("組み込み")) {
+			if (this.type.equals(Settings.getString("shimeji.mapper.embedded","組み込み"))) {
 				try {
 					final Class<? extends Action> cls = (Class<? extends Action>) Class.forName(this.getClassName());
 					try {
@@ -98,31 +101,31 @@ public class ActionBuilder implements IActionBuilder {
 
 					return cls.newInstance();
 				} catch (final InstantiationException e) {
-					throw new ActionInstantiationException("動作クラスの初期化に失敗(" + this + ")", e);
+					throw new ActionInstantiationException("Failed to initialize the action class(" + this + ")", e);
 				} catch (final IllegalAccessException e) {
-					throw new ActionInstantiationException("動作クラスにアクセスできません(" + this + ")", e);
+					throw new ActionInstantiationException("Illegal Access Exception in action class(" + this + ")", e);
 				} catch (final ClassNotFoundException e) {
-					throw new ActionInstantiationException("動作クラスが見つかりません(" + this + ")", e);
+					throw new ActionInstantiationException("Cannot find the action class(" + this + ")", e);
 				}
 
-			} else if (this.type.equals("移動")) {
+			} else if (this.type.equals(Settings.getString("shimeji.mapper.move","移動"))) {
 				return new Move(animations, variables);
-			} else if (this.type.equals("静止")) {
+			} else if (this.type.equals(Settings.getString("shimeji.mapper.stay","静止"))) {
 				return new Stay(animations, variables);
-			} else if (this.type.equals("固定")) {
+			} else if (this.type.equals(Settings.getString("shimeji.mapper.animate","固定"))) {
 				return new Animate(animations, variables);
-			} else if (this.type.equals("複合")) {
+			} else if (this.type.equals(Settings.getString("shimeji.mapper.sequence","複合"))) {
 				return new Sequence(variables, actions.toArray(new Action[0]));
-			} else if (this.type.equals("選択")) {
+			} else if (this.type.equals(Settings.getString("shimeji.mapper.select","選択"))) {
 				return new Select(variables, actions.toArray(new Action[0]));
 			} else {
-				throw new ActionInstantiationException("動作の種類が不明(" + this + ")");
+				throw new ActionInstantiationException("Unknown action type(" + this + ")");
 			}
 
 		} catch (final AnimationInstantiationException e) {
-			throw new ActionInstantiationException("アニメーションの作成に失敗しました(" + this + ")", e);
+			throw new ActionInstantiationException("Failed to create animation(" + this + ")", e);
 		} catch (final VariableException e) {
-			throw new ActionInstantiationException("パラメータの評価に失敗しました(" + this + ")", e);
+			throw new ActionInstantiationException("Failed the evaluation of parameters(" + this + ")", e);
 		}
 	}
 

@@ -51,6 +51,15 @@ RequestExecutionLevel admin
 	!insertmacro MUI_LANGUAGE "Italian"
 
 ;--------------------------------
+;Localization
+
+LangString Desc_SecRequired ${LANG_ITALIAN} "Installa i files necessari."
+LangString Desc_SecRunOnStartup ${LANG_ITALIAN} "Esegue ad ogni accensione del computer."
+
+LangString Desc_SecRequired ${LANG_ENGLISH} "Install required files."
+LangString Desc_SecRunOnStartup ${LANG_ENGLISH} "Run on computer boot."
+
+;--------------------------------
 
 ; Check Java Runtime's presence
 !define JRE_VERSION "1.6"
@@ -68,12 +77,7 @@ Section "${APPFULLNAME}" SecRequired
 	SetOutPath "$INSTDIR"
 	
 	; Put file there
-	File /r "..\target\conf"
-	File /r "..\target\lib"
-	File /r "..\target\img"
-	File "..\target\Shimeji.jar"
-	File "..\target\LICENSE.txt"
-	File "Shimeji.exe"
+	File /r "..\target\tmp\*.*"
 	
 	;Create uninstaller
 	WriteUninstaller "$INSTDIR\Uninstall.exe"
@@ -95,12 +99,10 @@ SectionEnd
 ;--------------------------------
 ;Descriptions
 
-  ;USE A LANGUAGE STRING IF YOU WANT YOUR DESCRIPTIONS TO BE LANGAUGE SPECIFIC
-
   ;Assign descriptions to sections
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-    !insertmacro MUI_DESCRIPTION_TEXT ${SecRequired} "Installa i files necessari."
-	!insertmacro MUI_DESCRIPTION_TEXT ${SecRunOnStartup} "Esegue ad ogni accensione del computer."
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecRequired} $(Desc_SecRequired)
+	!insertmacro MUI_DESCRIPTION_TEXT ${SecRunOnStartup} $(Desc_SecRunOnStartup)
   !insertmacro MUI_FUNCTION_DESCRIPTION_END
   
 ;--------------------------------
@@ -109,7 +111,7 @@ SectionEnd
 Section "Uninstall"
 
 	;ADD YOUR OWN FILES HERE...
-	RMDir /r "$INSTDIR\img"
+	RMDir /r "$INSTDIR\mascots"
 	RMDir /r "$INSTDIR\lib"
 	RMDir /r "$INSTDIR\conf"
 	Delete "$INSTDIR\Shimeji.jar"

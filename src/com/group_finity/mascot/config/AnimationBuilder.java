@@ -1,3 +1,5 @@
+/**Shimeji-ie*/
+
 package com.group_finity.mascot.config;
 
 import java.awt.Point;
@@ -14,6 +16,7 @@ import com.group_finity.mascot.exception.VariableException;
 import com.group_finity.mascot.image.ImagePair;
 import com.group_finity.mascot.image.ImagePairLoader;
 import com.group_finity.mascot.script.Variable;
+import com.group_finity.mascot.config.Settings;
 
 public class AnimationBuilder {
 
@@ -22,31 +25,40 @@ public class AnimationBuilder {
 	private final String condition;
 
 	private final List<Pose> poses = new ArrayList<Pose>();
-
+	
+	private String packageName = null;
+	
 	public AnimationBuilder(final Entry animationNode) throws IOException {
-		this.condition = animationNode.getAttribute("条件") == null ? "true" : animationNode.getAttribute("条件");
+		this(animationNode, Settings.getString("shimeji.cfg.default_mascot","default"));
+	}
 
-		log.log(Level.INFO, "アニメーション読み込み開始");
+	public AnimationBuilder(final Entry animationNode, final String packageName) throws IOException {
+		this.packageName = packageName;
+			
+		this.condition = animationNode.getAttribute(Settings.getString("shimeji.mapper.condition","条件")) == null ? "true" : animationNode.getAttribute(Settings.getString("shimeji.mapper.condition","条件"));
+
+		log.log(Level.INFO, "Starting reading animation");
 
 		for (final Entry frameNode : animationNode.getChildren()) {
 
 			this.getPoses().add(loadPose(frameNode));
 		}
 
-		log.log(Level.INFO, "アニメーション読み込み完了");
+		log.log(Level.INFO, "Finished loading animation");
 	}
 
 	private Pose loadPose(final Entry frameNode) throws IOException {
 
-		final String imageText = frameNode.getAttribute("画像");
-		final String anchorText = frameNode.getAttribute("基準座標");
-		final String moveText = frameNode.getAttribute("移動速度");
-		final String durationText = frameNode.getAttribute("長さ");
+		final String imageText = "/img"+frameNode.getAttribute(Settings.getString("shimeji.mapper.image","画像"));
+		final String anchorText = frameNode.getAttribute(Settings.getString("shimeji.mapper.image_anchor","基準座標"));
+		final String moveText = frameNode.getAttribute(Settings.getString("shimeji.mapper.velocity","移動速度"));
+		final String durationText = frameNode.getAttribute(Settings.getString("shimeji.mapper.duration","長さ"));
 
 		final String[] anchorCoordinates = anchorText.split(",");
 		final Point anchor = new Point(Integer.parseInt(anchorCoordinates[0]), Integer.parseInt(anchorCoordinates[1]));
 
-		final ImagePair image = ImagePairLoader.load(imageText, anchor);
+		final ImagePair image = ImagePairLoader.load(imageText, anchor, packageName);
+		log.log(Level.INFO, "Pose image loaded");
 
 		final String[] moveCoordinates = moveText.split(",");
 		final Point move = new Point(Integer.parseInt(moveCoordinates[0]), Integer.parseInt(moveCoordinates[1]));
@@ -55,7 +67,7 @@ public class AnimationBuilder {
 
 		final Pose pose = new Pose(image, move.x, move.y, duration);
 
-		log.log(Level.INFO, "姿勢読み込み({0})", pose);
+		log.log(Level.INFO, "Read pose({0})", pose);
 
 		return pose;
 
@@ -65,7 +77,7 @@ public class AnimationBuilder {
 		try {
 			return new Animation(Variable.parse(this.getCondition()), this.getPoses().toArray(new Pose[0]));
 		} catch (final VariableException e) {
-			throw new AnimationInstantiationException("条件の評価に失敗しました", e);
+			throw new AnimationInstantiationException("Failed to evaluate the condition", e);
 		}
 	}
 

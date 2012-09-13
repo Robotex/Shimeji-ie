@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import com.group_finity.mascot.Mascot;
 import com.group_finity.mascot.animation.Animation;
+import com.group_finity.mascot.config.Settings;
 import com.group_finity.mascot.environment.Area;
 import com.group_finity.mascot.exception.LostGroundException;
 import com.group_finity.mascot.exception.VariableException;
@@ -18,23 +19,23 @@ public class Fall extends ActionBase {
 
 	private static final Logger log = Logger.getLogger(Fall.class.getName());
 
-	public static final String PARAMETER_INITIALVX = "初速X";
+	public static final String PARAMETER_INITIALVX = Settings.getString("shimeji.mapper.initial_v_x","初速X");
 
 	private static final int DEFAULT_INITIALVX = 0;
 
-	private static final String PARAMETER_INITIALVY = "初速Y";
+	private static final String PARAMETER_INITIALVY = Settings.getString("shimeji.mapper.initial_v_y","初速Y");
 
 	private static final int DEFAULT_INITIALVY = 0;
 
-	public static final String PARAMETER_REGISTANCEX = "空気抵抗X";
+	public static final String PARAMETER_REGISTANCEX = Settings.getString("shimeji.mapper.registance_x","空気抵抗X");
 
 	private static final double DEFAULT_REGISTANCEX = 0.05;
 
-	public static final String PARAMETER_REGISTANCEY = "空気抵抗Y";
+	public static final String PARAMETER_REGISTANCEY = Settings.getString("shimeji.mapper.registance_y","空気抵抗Y");
 
 	private static final double DEFAULT_REGISTANCEY = 0.1;
 
-	public static final String PARAMETER_GRAVITY = "重力";
+	public static final String PARAMETER_GRAVITY = Settings.getString("shimeji.mapper.gravity","重力");
 
 	private static final double DEFAULT_GRAVITY = 2;
 

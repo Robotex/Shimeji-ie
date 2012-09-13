@@ -1,3 +1,5 @@
+/**Shimeji-ie*/
+
 package com.group_finity.mascot.behavior;
 
 import java.awt.Point;
@@ -10,6 +12,7 @@ import javax.swing.SwingUtilities;
 import com.group_finity.mascot.Mascot;
 import com.group_finity.mascot.action.Action;
 import com.group_finity.mascot.config.Configuration;
+import com.group_finity.mascot.config.Settings;
 import com.group_finity.mascot.environment.MascotEnvironment;
 import com.group_finity.mascot.exception.BehaviorInstantiationException;
 import com.group_finity.mascot.exception.CantBeAliveException;
@@ -22,11 +25,11 @@ import com.group_finity.mascot.exception.VariableException;
 public class UserBehavior implements Behavior {
 	private static final Logger log = Logger.getLogger(UserBehavior.class.getName());
 
-	public static final String BEHAVIORNAME_FALL = "落下する";
+	public static final String BEHAVIORNAME_FALL = Settings.getString("shimeji.mapper.fall","落下する");
 
-	public static final String BEHAVIORNAME_THROWN = "投げられる";
+	public static final String BEHAVIORNAME_THROWN = Settings.getString("shimeji.mapper.thrown","投げられる");
 
-	public static final String BEHAVIORNAME_DRAGGED = "ドラッグされる";
+	public static final String BEHAVIORNAME_DRAGGED = Settings.getString("shimeji.mapper.dragged","ドラッグされる");
 
 	private final String name;
 

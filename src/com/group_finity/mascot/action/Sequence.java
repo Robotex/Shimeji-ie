@@ -2,6 +2,7 @@ package com.group_finity.mascot.action;
 
 import java.util.logging.Logger;
 
+import com.group_finity.mascot.config.Settings;
 import com.group_finity.mascot.exception.VariableException;
 import com.group_finity.mascot.script.VariableMap;
 
@@ -12,7 +13,7 @@ public class Sequence extends ComplexAction {
 
 	private static final Logger log = Logger.getLogger(Sequence.class.getName());
 
-	public static final String PARAMETER_LOOP = "ŒJ‚è•Ô‚µ";
+	public static final String PARAMETER_LOOP = Settings.getString("shimeji.mapper.loop","ŒJ‚è•Ô‚µ");
 
 	private static final boolean DEFAULT_LOOP = false;
 

@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import com.group_finity.mascot.Mascot;
 import com.group_finity.mascot.animation.Animation;
+import com.group_finity.mascot.config.Settings;
 import com.group_finity.mascot.environment.Border;
 import com.group_finity.mascot.exception.LostGroundException;
 import com.group_finity.mascot.exception.VariableException;
@@ -19,15 +20,15 @@ public abstract class BorderedAction extends ActionBase {
 
 	private static final Logger log = Logger.getLogger(BorderedAction.class.getName());
 
-	private static final String PARAMETER_BORDERTYPE = "˜g";
+	private static final String PARAMETER_BORDERTYPE = Settings.getString("shimeji.mapper.border_type","˜g");
 
 	public static final String DEFAULT_BORDERTYPE = null;
 
-	public static final String BORDERTYPE_CEILING = "“Vˆä";
+	public static final String BORDERTYPE_CEILING = Settings.getString("shimeji.mapper.ceiling","“Vˆä");
 
-	public static final String BORDERTYPE_WALL = "•Ç";
+	public static final String BORDERTYPE_WALL = Settings.getString("shimeji.mapper.wall","•Ç");
 
-	public static final String BORDERTYPE_FLOOR = "’n–Ê";
+	public static final String BORDERTYPE_FLOOR = Settings.getString("shimeji.mapper.floor","’n–Ê");
 
 	private Border border;
 

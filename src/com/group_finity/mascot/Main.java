@@ -1,3 +1,5 @@
+/**Shimeji-ie*/
+
 package com.group_finity.mascot;
 
 import java.awt.AWTException;
@@ -23,21 +25,23 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import com.group_finity.mascot.config.Settings;
 import com.group_finity.mascot.config.Configuration;
 import com.group_finity.mascot.config.Entry;
 import com.group_finity.mascot.exception.BehaviorInstantiationException;
 import com.group_finity.mascot.exception.CantBeAliveException;
 import com.group_finity.mascot.exception.ConfigurationException;
 import com.sun.jna.Platform;
+import java.util.Random;
 
 /**
- * プログラムのエントリポイント.
+ * Main entry point.
  */
 public class Main {
 
 	private static final Logger log = Logger.getLogger(Main.class.getName());
 
-	static final String BEHAVIOR_GATHER = "マウスの周りに集まる";
+	static final String BEHAVIOR_GATHER = Settings.getString("shimeji.mapper.chase_mouse","マウスの周りに集まる");
 
 	static {
 		try {
@@ -65,110 +69,83 @@ public class Main {
 	}
 
 	public void run() {
+	
+		// Reads the settings file
+		Settings.load("./conf/settings.cfg");
+		{
+			if (Settings.getString("shimeji.mapper") != null)
+				Settings.load(Settings.getString("shimeji.mapper"));
+			if (Settings.getString("shimeji.lang") != null)
+				Settings.load(Settings.getString("shimeji.lang"));
+		}
 
-		// 設定を読み込む
-		loadConfiguration();
-
-		// トレイアイコンを作成する
+		// Load packages
+		ResourceManager.loadPackages();
+		
+		// Creates a tray icon
 		createTrayIcon();
 
-		// しめじを一匹作成する
-		createMascot();
+		// Creates the mascot
+		for (String packageName:ResourceManager.getPackageNames())
+			createMascot(packageName);
 
 		getManager().start();
 	}
 
 	/**
-	 * 設定ファイルを読み込む.
-	 */
-	private void loadConfiguration() {
-
-		try {
-			log.log(Level.INFO, "設定ファイルを読み込み({0})", "/Behavior.xml");
-
-			final Document actions = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(
-					Main.class.getResourceAsStream("/Behavior.xml"));
-
-			log.log(Level.INFO, "設定ファイルを読み込み({0})", "/Actions.xml");
-
-			this.getConfiguration().load(new Entry(actions.getDocumentElement()));
-
-			final Document behaviors = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(
-					Main.class.getResourceAsStream("/Actions.xml"));
-
-			this.getConfiguration().load(new Entry(behaviors.getDocumentElement()));
-
-			this.getConfiguration().validate();
-
-		} catch (final IOException e) {
-			log.log(Level.SEVERE, "設定ファイルの読み込みに失敗", e);
-			exit();
-		} catch (final SAXException e) {
-			log.log(Level.SEVERE, "設定ファイルの読み込みに失敗", e);
-			exit();
-		} catch (final ParserConfigurationException e) {
-			log.log(Level.SEVERE, "設定ファイルの読み込みに失敗", e);
-			exit();
-		} catch (final ConfigurationException e) {
-			log.log(Level.SEVERE, "設定ファイルの記述に誤りがあります", e);
-			exit();
-		}
-	}
-
-	/**
-	 * トレイアイコンを作成する.
+	 * Creates the tray icon.
 	 * @throws AWTException
 	 * @throws IOException
 	 */
 	private void createTrayIcon() {
 
-		log.log(Level.INFO, "トレイアイコンを作成");
+		log.log(Level.INFO, "Creating a tray icon");
 
 		if ( SystemTray.getSystemTray()==null ) {
 			return;
 		}
 
-		// 「増やす」メニューアイテム
-		final MenuItem increaseMenu = new MenuItem("Ancora");
+		// [One more] Menu item
+		final MenuItem increaseMenu = new MenuItem(Settings.getString("shimeji.gui.one_more","One more!"));
 		increaseMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent event) {
 				createMascot();
 			}
 		});
 
-		// 「あつまれ！」メニューアイテム
-		final MenuItem gatherMenu = new MenuItem("Segui cursore!");
+		// [Follow cursor] Menu item
+		final MenuItem gatherMenu = new MenuItem(Settings.getString("shimeji.gui.follow_cursor","Follow cursor!"));
 		gatherMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent event) {
 				gatherAll();
 			}
 		});
 
-		// 「一匹だけ残す」メニューアイテム
-		final MenuItem oneMenu = new MenuItem("Fusione!");
+		// [Gather one] Menu item
+		final MenuItem oneMenu = new MenuItem(Settings.getString("shimeji.gui.gather_one","Reduce to one!"));
 		oneMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent event) {
 				remainOne();
 			}
 		});
 
-		// 「IEを元に戻す」メニューアイテム
-		final MenuItem restoreMenu = new MenuItem("Ripristina IE");
+		// [Restore IE] Menu item
+		final MenuItem restoreMenu = new MenuItem(Settings.getString("shimeji.gui.restore_ie","Restore IE!"));
 		restoreMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent event) {
 				restoreIE();
 			}
 		});
 
-		// 「ばいばい」メニューアイテム
-		final MenuItem closeMenu = new MenuItem("Ciao ciao!");
+		// [Bye Bye] Menu item
+		final MenuItem closeMenu = new MenuItem(Settings.getString("shimeji.gui.bye_bye","Bye Bye!"));
 		closeMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
 				exit();
 			}
 		});
 
-		// ポップアップメニューを作成
+		// Create a pop-up menu
 		final PopupMenu trayPopup = new PopupMenu();
 		trayPopup.add(increaseMenu);
 		trayPopup.add(gatherMenu);
@@ -178,65 +155,80 @@ public class Main {
 		trayPopup.add(closeMenu);
 
 		try {
-			// トレイアイコンを作成
-			final TrayIcon icon = new TrayIcon(ImageIO.read(Main.class.getResource("/icon.png")), "Shimeji", trayPopup);
+			// Create a tray icon
+			log.log(Level.INFO, "Creating tray icon");
+			final TrayIcon icon = new TrayIcon(ImageIO.read(ResourceManager.getResourceAsStream("/img/icon.png", Settings.getString("shimeji.cfg.default_mascot", "default"))), "Shimeji-ie", trayPopup);
 			icon.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(final MouseEvent e) {
-					// アイコンがダブルクリックされたときも「増える」
+					// When the icon is clicked perform [Ancora]
 					if (SwingUtilities.isLeftMouseButton(e)) {
 						createMascot();
 					}
 				}
 			});
 
-			// トレイアイコンを表示
+			// Show the tray icon
 			SystemTray.getSystemTray().add(icon);
 
 		} catch (final IOException e) {
-			log.log(Level.SEVERE, "トレイアイコンの作成に失敗", e);
+			log.log(Level.SEVERE, "Failed to create tray icon", e);
 			exit();
 
 		} catch (final AWTException e) {
-			log.log(Level.SEVERE, "トレイアイコンの作成に失敗", e);
+			log.log(Level.SEVERE, "Failed to create tray icon", e);
 			MascotEventHandler.setShowSystemTrayMenu(true);
 			getManager().setExitOnLastRemoved(true);
 		}
 
 	}
+	
+	/**
+	* Randomly creates a mascot
+	*/
+	public void createMascot()
+	{
+		Random generator = new Random();
+		Object[] values = ResourceManager.getPackageNames().toArray();
+		String packageName = (String)values[generator.nextInt(values.length)];
+		createMascot(packageName);
+	}
+
 
 	/**
-	 * しめじを一匹作成する.
+	 * Create one Shimeji
 	 */
-	public void createMascot() {
+	public void createMascot(String packageName) {
 
-		log.log(Level.INFO, "マスコットを作成");
+		log.log(Level.INFO, "Creating a mascot");
 
-		// マスコットを1個作成
-		final Mascot mascot = new Mascot();
+		// Creates one mascot
+		final Mascot mascot = new Mascot(packageName);
 
-		// 範囲外から開始
+		// Initiates outside the screen
 		mascot.setAnchor(new Point(-1000, -1000));
-		// ランダムな向きで
+		// Random orientation
 		mascot.setLookRight(Math.random() < 0.5);
 
 		try {
-			mascot.setBehavior(getConfiguration().buildBehavior(null, mascot));
+			mascot.setBehavior(getConfiguration(packageName).buildBehavior(null, mascot));
 
 			this.getManager().add(mascot);
 
 		} catch (final BehaviorInstantiationException e) {
-			log.log(Level.SEVERE, "最初の行動の初期化に失敗しました", e);
+			log.log(Level.SEVERE, "Failed to initialize the first action", e);
 			mascot.dispose();
 		} catch (final CantBeAliveException e) {
-			log.log(Level.SEVERE, "生き続けることが出来ない状況", e);
+			log.log(Level.SEVERE, "Situation in which I cannot stay alive", e);
 			mascot.dispose();
 		}
 
 	}
 
-	public void gatherAll() {
-		Main.this.getManager().setBehaviorAll(Main.this.getConfiguration(), BEHAVIOR_GATHER);
+	public void gatherAll()
+	{
+		for (String packageName:ResourceManager.getPackageNames())
+			Main.this.getManager().setBehaviorAll(Main.this.getConfiguration(packageName), BEHAVIOR_GATHER);
 	}
 
 	public void remainOne() {
@@ -255,8 +247,9 @@ public class Main {
 		System.exit(0);
 	}
 
-	public Configuration getConfiguration() {
-		return this.configuration;
+	public Configuration getConfiguration(String packageName)
+	{
+		return ResourceManager.getPackage(packageName).getConfiguration();
 	}
 
 	private Manager getManager() {

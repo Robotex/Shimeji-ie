@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="Windows-31J" ?>
-<project name="Shimeji" basedir="." default="zip">
+<project name="Shimeji" basedir="." default="zip_package">
 
 	<property name="version_major" value="1" />
-	<property name="version_minor" value="0" />
+	<property name="version_minor" value="1" />
 	<property name="version_build" value="0" />
 	<property name="version" value="${version_major}_${version_minor}_${version_build}" />
-
+	<property name="output_path" value="target" />
+	<property name="mascots_path" value="mascots" />
+	
 	<target name="clean">
-		<delete dir="target" />
-		<mkdir dir="target"/>
+		<delete dir="${output_path}" />
+		<mkdir dir="${output_path}"/>
 	</target>
 
 	<target name="compile" depends="clean">
-		<mkdir dir="target/classes" />
-		<javac destdir="target/classes" target="6" debug="yes" optimize="yes" encoding="Windows-31J">
+		<mkdir dir="${output_path}/classes" />
+		<javac destdir="${output_path}/classes" target="7" debug="yes" optimize="yes" encoding="Windows-31J" includeAntRuntime="false">
 			<src path="src"/>
 			<src path="src_win"/>
 			<src path="src_generic"/>
@@ -24,63 +26,70 @@
 	</target>
 
 	<target name="jar" depends="compile">
-		<jar destfile="target/Shimeji.jar" basedir="target/classes" manifest="MANIFEST.MF" />
-		<delete dir="target/classes" />
+		<jar destfile="${output_path}/tmp/Shimeji.jar" basedir="${output_path}/classes" manifest="MANIFEST.MF" />
+		<delete dir="${output_path}/classes" />
 	</target>
-
-	<target name="zip_package" depends="jar">
-		<zip destfile="target/Shimeji-ie_${version}.zip" encoding="Windows-31J">
-			<fileset dir="target">
-				<include name="Shimeji.jar" />
-			</fileset>
+	
+	<target name="res_package">
+		<zip destfile="${output_path}/tmp/${mascots_path}/default.zip" encoding="Windows-31J">
 			<fileset dir=".">
-				<include name="LICENSE.txt"/>
 				<include name="img/**/*" />
-				<include name="conf/**/*" />
-				<include name="lib/*" />
 			</fileset>
 		</zip>
 	</target>
-
-	<target name="jar_package" depends="jar">
-		<jar destfile="target/Shimeji-ie_${version}.jar">
-			<fileset dir="target">
-				<include name="Shimeji.jar" />
-			</fileset>
+	
+	<target name="includes">
+		<copy todir="${output_path}/tmp">
 			<fileset dir=".">
-				<include name="LICENSE.txt"/>
-				<include name="img/**/*" />
+				<include name="LICENSE.txt" />
+				<include name="Shimeji.jar" />
 				<include name="conf/**/*" />
 				<include name="lib/*" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="zip_package" depends="jar,includes,res_package">
+		<zip destfile="${output_path}/Shimeji-ie_${version}.zip" encoding="Windows-31J">
+			<fileset dir="${output_path}/tmp">
+				<include name="**" />
+			</fileset>
+		</zip>
+		<delete dir="${output_path}/tmp" />
+	</target>
+
+	<target name="jar_package" depends="jar,includes,res_package">
+		<jar destfile="${output_path}/Shimeji-ie_${version}.jar">
+			<fileset dir="${output_path}/tmp">
+				<include name="**" />
 			</fileset>
 		</jar>
+		<delete dir="${output_path}/tmp" />
 	</target>
 	
-	<target name="win-x86" depends="jar">
-		<copy todir="target">
-			<fileset dir=".">
-				<include name="LICENSE.txt"/>
-				<include name="img/**/*" />
-				<include name="conf/**/*" />
-				<include name="lib/*" />
+	<target name="win-x86" depends="jar,includes,res_package">
+		<copy todir="${output_path}/tmp">
+			<fileset dir="tools">
+				<include name="Shimeji.exe" />
 			</fileset>
-			<file file="tools/Shimeji.exe" />
 		</copy>
 	</target>
 	
 	<target name="win-x86-zip_package" depends="zip_package">
-		<zip destfile="target/Shimeji-ie_${version}_win_x86.zip" encoding="Windows-31J" update="true">
+		<zip destfile="${output_path}/Shimeji-ie_${version}_win_x86.zip" encoding="Windows-31J" update="true">
 			<zipfileset dir="tools" includes="Shimeji.exe" />
 		</zip>
+		<delete dir="${output_path}/tmp" />
 	</target>
 	
-	<target name="win-x86-installer" depends="jar,win-x86">
+	<target name="win-x86-installer" depends="win-x86">
 		<property environment="env"/>
 		<exec executable="${env.ProgramFiles(x86)}/NSIS/makensis.exe">
 			<arg value="/V3" />
 			<arg value="/DVERSION=${version_major}.${version_minor}.${version_build}" />
 			<arg value="tools/setup.nsi" />
 		</exec>
-		<move file="target/shimeji-ie_setup.exe" tofile="target/Shimeji-ie_${version}_win_x86.exe" />
+		<move file="${output_path}/shimeji-ie_setup.exe" tofile="${output_path}/Shimeji-ie_${version}_win_x86.exe" />
+		<delete dir="${output_path}/tmp" />
 	</target>
 </project>

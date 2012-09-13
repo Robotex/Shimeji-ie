@@ -1,3 +1,5 @@
+/**Shimeji-ie*/
+
 package com.group_finity.mascot;
 
 import java.awt.event.ActionEvent;
@@ -14,6 +16,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import com.group_finity.mascot.config.Settings;
 import com.group_finity.mascot.exception.CantBeAliveException;
 
 public class MascotEventHandler implements MouseListener {
@@ -95,7 +98,7 @@ public class MascotEventHandler implements MouseListener {
 			}
 		});
 
-		final JMenuItem disposeMenu = new JMenuItem("Ciao ciao!");
+		final JMenuItem disposeMenu = new JMenuItem(Settings.getString("shimeji.gui.bye_bye","Bye Bye!"));
 		disposeMenu.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -110,7 +113,7 @@ public class MascotEventHandler implements MouseListener {
 			popup.add(new JSeparator());
 
 			// 「増やす」メニューアイテム
-			final JMenuItem increaseMenu = new JMenuItem("Ancora");
+			final JMenuItem increaseMenu = new JMenuItem(Settings.getString("shimeji.gui.one_more","One more!"));
 			increaseMenu.addActionListener(new ActionListener() {
 				public void actionPerformed(final ActionEvent event) {
 					Main.getInstance().createMascot();
@@ -118,15 +121,15 @@ public class MascotEventHandler implements MouseListener {
 			});
 
 			// 「あつまれ！」メニューアイテム
-			final JMenuItem gatherMenu = new JMenuItem("Segui cursore!");
+			final JMenuItem gatherMenu = new JMenuItem(Settings.getString("shimeji.gui.follow_cursor","Follow cursor!"));
 			gatherMenu.addActionListener(new ActionListener() {
 				public void actionPerformed(final ActionEvent event) {
-					getMascot().getManager().setBehaviorAll(Main.getInstance().getConfiguration(), Main.BEHAVIOR_GATHER);
+					getMascot().getManager().setBehaviorAll(Main.getInstance().getConfiguration(getMascot().getPackageName()), Main.BEHAVIOR_GATHER);
 				}
 			});
 
 			// 「一匹だけ残す」メニューアイテム
-			final JMenuItem oneMenu = new JMenuItem("Fusione!");
+			final JMenuItem oneMenu = new JMenuItem(Settings.getString("shimeji.gui.gather_one","Reduce to one!"));
 			oneMenu.addActionListener(new ActionListener() {
 				public void actionPerformed(final ActionEvent event) {
 					getMascot().getManager().remainOne();
@@ -134,7 +137,7 @@ public class MascotEventHandler implements MouseListener {
 			});
 
 			// 「IEを元に戻す」メニューアイテム
-			final JMenuItem restoreMenu = new JMenuItem("Ripristina IE");
+			final JMenuItem restoreMenu = new JMenuItem(Settings.getString("shimeji.gui.restore_ie","Restore IE!"));
 			restoreMenu.addActionListener(new ActionListener() {
 				public void actionPerformed(final ActionEvent event) {
 					NativeFactory.getInstance().getEnvironment().restoreIE();
@@ -142,7 +145,7 @@ public class MascotEventHandler implements MouseListener {
 			});
 
 			// 「全部ばいばい」メニューアイテム
-			final JMenuItem closeMenu = new JMenuItem("Ciao a tutti!");
+			final JMenuItem closeMenu = new JMenuItem(Settings.getString("shimeji.gui.bye_bye","Bye Bye!"));
 			closeMenu.addActionListener(new ActionListener() {
 				public void actionPerformed(final ActionEvent e) {
 					Main.getInstance().exit();

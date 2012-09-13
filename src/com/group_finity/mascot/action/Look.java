@@ -2,6 +2,7 @@ package com.group_finity.mascot.action;
 
 import java.util.logging.Logger;
 
+import com.group_finity.mascot.config.Settings;
 import com.group_finity.mascot.exception.VariableException;
 import com.group_finity.mascot.script.VariableMap;
 
@@ -13,7 +14,7 @@ public class Look extends InstantAction {
 
 	private static final Logger log = Logger.getLogger(Look.class.getName());
 
-	public static final String PARAMETER_LOOKRIGHT = "‰EŒü‚«";
+	public static final String PARAMETER_LOOKRIGHT = Settings.getString("shimeji.mapper.look_right","‰EŒü‚«");
 
 	public Look(final VariableMap params) {
 		super(params);

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.group_finity.mascot.animation.Animation;
+import com.group_finity.mascot.config.Settings;
 import com.group_finity.mascot.environment.Area;
 import com.group_finity.mascot.exception.LostGroundException;
 import com.group_finity.mascot.exception.VariableException;
@@ -18,15 +19,15 @@ public class ThrowIE extends Animate {
 
 	private static final Logger log = Logger.getLogger(ThrowIE.class.getName());
 
-	public static final String PARAMETER_INITIALVX = "èâë¨X";
+	public static final String PARAMETER_INITIALVX = Settings.getString("shimeji.mapper.initial_v_x","èâë¨X");
 
 	private static final int DEFAULT_INITIALVX = 32;
 
-	public static final String PARAMETER_INITIALVY = "èâë¨Y";
+	public static final String PARAMETER_INITIALVY = Settings.getString("shimeji.mapper.initial_v_y","èâë¨Y");
 
 	private static final int DEFAULT_INITIALVY = -10;
 
-	public static final String PARAMETER_GRAVITY = "èdóÕ";
+	public static final String PARAMETER_GRAVITY = Settings.getString("shimeji.mapper.gravity","èdóÕ");
 
 	private static final double DEFAULT_GRAVITY = 0.5;
 

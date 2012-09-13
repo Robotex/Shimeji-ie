@@ -1,3 +1,5 @@
+/**Shimeji-ie*/
+
 package com.group_finity.mascot.image;
 
 import java.awt.Point;
@@ -6,36 +8,42 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-
-
+import com.group_finity.mascot.ResourceManager;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.awt.Graphics2D;
 /**
- *　画像ペアを読み込む.
+ *　ImagePairLoader class.
  */
 public class ImagePairLoader {
-
+	private static final Logger log = Logger.getLogger(ResourceManager.class.getName());
 	/**
-	 * 画像ペアを読み込む.
+	 * ImagePairLoader class.
 	 *
-	 * 左向き画像を読み込んで、右向き画像を自動生成する.
+	 * Reads the left image to generate automatically the right one.
 	 *
-	 * @param name 読み込みたい左向き画像.
-	 * @param center 画像の中央座標.
-	 * @return 読み込んだ画像ペア.
+	 * @param name - Left image to be read.
+	 * @param center - Coordinates of the image's center.
+	 * @return - Returned image pair.
 	 */
-	public static ImagePair load(final String name, final Point center) throws IOException {
+	public static ImagePair load(final String name, final Point center, final String packageName) throws IOException {
 
-		// flip では半透明にならない画像があるらしいので
-		// shime1.png に対して shime1-r.png を反転画像として使用するようにして回避。
+		// There seems to be problems flipping semi-transparent images
+		// Workaround is to use shime1-r.png instead of shime1.png
 		String rightName = name.replaceAll("\\.[a-zA-Z]+$", "-r$0");
 
-		final BufferedImage leftImage = ImageIO.read(ImagePairLoader.class.getResource(name));
+		final BufferedImage leftImage = ImageIO.read(ResourceManager.getResourceAsStream(name, packageName));
 
-
+		if(leftImage==null)
+			log.log(Level.INFO, "ImageIO returned null image!");
+		
 		final BufferedImage rightImage;
-		if ( ImagePairLoader.class.getResource(rightName)==null ) {
+		if ( ResourceManager.getResourceAsStream(rightName, packageName)==null ) {
 			rightImage = flip(leftImage);
+			log.log(Level.INFO, "flipped.");
 		} else {
-			rightImage = ImageIO.read(ImagePairLoader.class.getResource(rightName));
+			log.log(Level.INFO, "Loading flipped image from file");
+			rightImage = ImageIO.read(ResourceManager.getResourceAsStream(rightName, packageName));
 		}
 
 		return new ImagePair(new MascotImage(leftImage, center), new MascotImage(rightImage, new Point(rightImage
@@ -44,19 +52,20 @@ public class ImagePairLoader {
 	}
 
 	/**
-	 * 画像を左右反転させる.
-	 * @param src 左右反転したい画像
-	 * @return　左右反転した
+	 * Flips the image left or right.
+	 * @param src - The image to be flipped
+	 * @return　- Returns the inverse image
 	 */
 	private static BufferedImage flip(final BufferedImage src) {
+		log.log(Level.INFO, "Flipping image({0})", src);
+		int w = src.getWidth();  
+        int h = src.getHeight();  
+		log.log(Level.INFO, "Flipping {0}x{1} image", new Object[]{w,h});
+		final BufferedImage copy = new BufferedImage(w, h, src.getType());
 
-		final BufferedImage copy = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_ARGB);
-
-		for (int y = 0; y < src.getHeight(); ++y) {
-			for (int x = 0; x < src.getWidth(); ++x) {
-				copy.setRGB(copy.getWidth() - x - 1, y, src.getRGB(x, y));
-			}
-		}
+        Graphics2D g = copy.createGraphics();  
+        g.drawImage(src, 0, 0, w, h, w, 0, 0, h, null);  
+        g.dispose();  
 		return copy;
 	}
 

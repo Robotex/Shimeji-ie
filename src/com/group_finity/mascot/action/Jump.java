@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.group_finity.mascot.animation.Animation;
+import com.group_finity.mascot.config.Settings;
 import com.group_finity.mascot.exception.LostGroundException;
 import com.group_finity.mascot.exception.VariableException;
 import com.group_finity.mascot.script.VariableMap;
@@ -17,15 +18,15 @@ public class Jump extends ActionBase {
 
 	private static final Logger log = Logger.getLogger(Jump.class.getName());
 
-	public static final String PARAMETER_TARGETX = "目的地X";
+	public static final String PARAMETER_TARGETX = Settings.getString("shimeji.mapper.target_x","目的地X");
 	
 	private static final int DEFAULT_PARAMETERX = 0;
 	
-	public static final String PARAMETER_TARGETY = "目的地Y";
+	public static final String PARAMETER_TARGETY = Settings.getString("shimeji.mapper.target_y","目的地Y");
 	
 	private static final int DEFAULT_PARAMETERY = 0;
 
-	public static final String PARAMETER_VELOCITY = "速度";
+	public static final String PARAMETER_VELOCITY = Settings.getString("shimeji.mapper.velocity_param","速度");
 
 	private static final double DEFAULT_VELOCITY = 20.0;
 

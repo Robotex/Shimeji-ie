@@ -1,3 +1,5 @@
+/**Shimeji-ie*/
+
 package com.group_finity.mascot.action;
 
 import java.awt.Point;
@@ -6,6 +8,7 @@ import java.util.logging.Logger;
 
 import com.group_finity.mascot.Mascot;
 import com.group_finity.mascot.animation.Animation;
+import com.group_finity.mascot.config.Settings;
 import com.group_finity.mascot.environment.Location;
 import com.group_finity.mascot.exception.LostGroundException;
 import com.group_finity.mascot.exception.VariableException;
@@ -18,7 +21,7 @@ public class Dragged extends ActionBase {
 
 	private static final Logger log = Logger.getLogger(Dragged.class.getName());
 
-	private static final String VARIABLE_FOOTX = "footX";
+	private static final String VARIABLE_FOOTX = Settings.getString("shimeji.mapper.foot_x","footX");
 
 	private double footX;
 

@@ -1,3 +1,5 @@
+/**Shimeji-ie*/
+
 package com.group_finity.mascot.action;
 
 import java.awt.Point;
@@ -8,6 +10,7 @@ import java.util.logging.Logger;
 import com.group_finity.mascot.Main;
 import com.group_finity.mascot.Mascot;
 import com.group_finity.mascot.animation.Animation;
+import com.group_finity.mascot.config.Settings;
 import com.group_finity.mascot.exception.BehaviorInstantiationException;
 import com.group_finity.mascot.exception.CantBeAliveException;
 import com.group_finity.mascot.exception.LostGroundException;
@@ -23,15 +26,15 @@ public class Breed extends Animate {
 
 	private static final Logger log = Logger.getLogger(Breed.class.getName());
 
-	public static final String PARAMETER_BORNX = "生まれる場所X";
+	public static final String PARAMETER_BORNX = Settings.getString("shimeji.mapper.born_x","生まれる場所X");
 
 	private static final int DEFAULT_BORNX = 0;
 
-	public static final String PARAMETER_BORNY = "生まれる場所Y";
+	public static final String PARAMETER_BORNY = Settings.getString("shimeji.mapper.born_y","生まれる場所Y");
 
 	private static final int DEFAULT_BORNY = 0;
 
-	public static final String PARAMETER_BORNBEHAVIOR = "生まれた時の行動";
+	public static final String PARAMETER_BORNBEHAVIOR = Settings.getString("shimeji.mapper.born_behavior","生まれた時の行動");
 
 	private static final String DEFAULT_BORNBEHAVIOR = "";
 
@@ -53,9 +56,9 @@ public class Breed extends Animate {
 	private void breed() throws VariableException {
 
 		// マスコットを1個作成
-		final Mascot mascot = new Mascot();
+		final Mascot mascot = new Mascot(getMascot().getPackageName());
 
-		log.log(Level.INFO, "増殖({0},{1},{2})", new Object[] { getMascot(), this, mascot });
+		log.log(Level.INFO, "Breed({0},{1},{2})", new Object[] { getMascot(), this, mascot });
 
 		// 範囲外から開始
 		if (getMascot().isLookRight()) {
@@ -68,15 +71,16 @@ public class Breed extends Animate {
 		mascot.setLookRight(getMascot().isLookRight());
 
 		try {
-			mascot.setBehavior(Main.getInstance().getConfiguration().buildBehavior(getBornBehavior()));
-
+			log.log(Level.INFO, "Setting behavior of breed {0}", getMascot().getPackageName());
+			mascot.setBehavior(Main.getInstance().getConfiguration(getMascot().getPackageName()).buildBehavior(getBornBehavior()));
+			log.log(Level.INFO, "Adding mascot to the manager");
 			getMascot().getManager().add(mascot);
 		
 		} catch (final BehaviorInstantiationException e) {
-			log.log(Level.SEVERE, "生まれた時の行動の初期化に失敗しました", e);
+			log.log(Level.SEVERE, "Failed to initialize Breed action.", e);
 			mascot.dispose();
 		} catch (final CantBeAliveException e) {
-			log.log(Level.SEVERE, "生き続けることが出来ない状況", e);
+			log.log(Level.SEVERE, "CantBeAliveException at Breed", e);
 			mascot.dispose();
 		}
 	}

@@ -1,3 +1,5 @@
+/**Shimeji-ie*/
+
 package com.group_finity.mascot.config;
 
 import java.awt.Point;
@@ -14,6 +16,7 @@ import com.group_finity.mascot.Mascot;
 import com.group_finity.mascot.NativeFactory;
 import com.group_finity.mascot.action.Action;
 import com.group_finity.mascot.behavior.Behavior;
+import com.group_finity.mascot.config.Settings;
 import com.group_finity.mascot.exception.ActionInstantiationException;
 import com.group_finity.mascot.exception.BehaviorInstantiationException;
 import com.group_finity.mascot.exception.ConfigurationException;
@@ -30,54 +33,54 @@ public class Configuration {
 
 	private final Map<String, BehaviorBuilder> behaviorBuilders = new LinkedHashMap<String, BehaviorBuilder>();
 
-	public void load(final Entry configurationNode) throws IOException, ConfigurationException {
+	public void load(final Entry configurationNode, final String packageName) throws IOException, ConfigurationException {
 
-		log.log(Level.INFO, "設定読み込み開始");
+		log.log(Level.INFO, "Starting reading");
 
-		for (final Entry constant : configurationNode.selectChildren("定数")) {
+		for (final Entry constant : configurationNode.selectChildren(Settings.getString("shimeji.mapper.constant","定数"))) {
 
-			log.log(Level.INFO, "定数...");
+			log.log(Level.INFO, "Constant...");
 
-			constants.put( constant.getAttribute("名前"), constant.getAttribute("値") );
+			constants.put( constant.getAttribute(Settings.getString("shimeji.mapper.name","名前")), constant.getAttribute(Settings.getString("shimeji.mapper.value","値")) );
 		}
 
-		for (final Entry list : configurationNode.selectChildren("動作リスト")) {
+		for (final Entry list : configurationNode.selectChildren(Settings.getString("shimeji.mapper.action_list","動作リスト"))) {
 
-			log.log(Level.INFO, "動作リスト...");
+			log.log(Level.INFO, "ActionList...");
 
-			for (final Entry node : list.selectChildren("動作")) {
+			for (final Entry node : list.selectChildren(Settings.getString("shimeji.mapper.action","動作"))) {
 
-				final ActionBuilder action = new ActionBuilder(this, node);
+				final ActionBuilder action = new ActionBuilder(this, node, packageName);
 
 				if ( this.getActionBuilders().containsKey(action.getName())) {
-					throw new ConfigurationException("動作の名前が重複しています:"+action.getName());
+					throw new ConfigurationException("Duplicated action name:"+action.getName());
 				}
 
 				this.getActionBuilders().put(action.getName(), action);
 			}
 		}
 
-		for (final Entry list : configurationNode.selectChildren("行動リスト")) {
+		for (final Entry list : configurationNode.selectChildren(Settings.getString("shimeji.mapper.behavior_list","行動リスト"))) {
 
-			log.log(Level.INFO, "行動リスト...");
+			log.log(Level.INFO, "Behavior list...");
 
 			loadBehaviors(list, new ArrayList<String>());
 		}
 
-		log.log(Level.INFO, "設定読み込み完了");
+		log.log(Level.INFO, "Finished loading configuration");
 	}
 
 	private void loadBehaviors(final Entry list, final List<String> conditions) {
 		for (final Entry node : list.getChildren()) {
 
-			if (node.getName().equals("条件")) {
+			if (node.getName().equals(Settings.getString("shimeji.mapper.condition","条件"))) {
 
 				final List<String> newConditions = new ArrayList<String>(conditions);
-				newConditions.add(node.getAttribute("条件"));
+				newConditions.add(node.getAttribute(Settings.getString("shimeji.mapper.condition","条件")));
 
 				loadBehaviors(node, newConditions);
 
-			} else if (node.getName().equals("行動")) {
+			} else if (node.getName().equals(Settings.getString("shimeji.mapper.behavior","行動"))) {
 				final BehaviorBuilder behavior = new BehaviorBuilder(this, node, conditions);
 				this.getBehaviorBuilders().put(behavior.getName(), behavior);
 			}
@@ -88,7 +91,7 @@ public class Configuration {
 
 		final ActionBuilder factory = this.actionBuilders.get(name);
 		if (factory == null) {
-			throw new ActionInstantiationException("対応する動作が見つかりません: " + name);
+			throw new ActionInstantiationException("Cannot find the corresponding operation: " + name);
 		}
 
 		return factory.buildAction(params);
@@ -123,7 +126,7 @@ public class Configuration {
 					totalFrequency += behaviorFactory.getFrequency();
 				}
 			} catch (final VariableException e) {
-				log.log(Level.WARNING, "行動頻度の評価中にエラーが発生しました", e);
+				log.log(Level.WARNING, "An error occurred during the evaluation of behavioral frequency", e);
 			}
 		}
 
@@ -140,7 +143,7 @@ public class Configuration {
 						totalFrequency += behaviorFactory.getFrequency();
 					}
 				} catch (final VariableException e) {
-					log.log(Level.WARNING, "行動頻度の評価中にエラーが発生しました", e);
+					log.log(Level.WARNING, "An error occurred during the evaluation of behavioral frequency", e);
 				}
 			}
 		}
@@ -151,7 +154,7 @@ public class Configuration {
 							- mascot.getEnvironment()
 					.getScreen().getLeft()))
 					+ mascot.getEnvironment().getScreen().getLeft(), mascot.getEnvironment().getScreen().getTop() - 256));
-			return buildBehavior("落下する");
+			return buildBehavior(Settings.getString("shimeji.mapper.fall","落下する"));
 		}
 
 		double random = Math.random() * totalFrequency;

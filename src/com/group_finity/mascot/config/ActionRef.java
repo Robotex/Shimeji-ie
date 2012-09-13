@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.group_finity.mascot.action.Action;
+import com.group_finity.mascot.config.Settings;
 import com.group_finity.mascot.exception.ActionInstantiationException;
 import com.group_finity.mascot.exception.ConfigurationException;
 
@@ -22,15 +23,15 @@ public class ActionRef implements IActionBuilder {
 	public ActionRef(final Configuration configuration, final Entry refNode) {
 		this.configuration = configuration;
 
-		this.name = refNode.getAttribute("名前");
+		this.name = refNode.getAttribute(Settings.getString("shimeji.mapper.name","名前"));
 		this.getParams().putAll(refNode.getAttributes());
 
-		log.log(Level.INFO, "動作参照読み込み({0})", this);
+		log.log(Level.INFO, "Behavior reference read({0})", this);
 	}
 
 	@Override
 	public String toString() {
-		return "動作参照(" + getName() + ")";
+		return "Behavior reference(" + getName() + ")";
 	}
 
 	private String getName() {
@@ -48,7 +49,7 @@ public class ActionRef implements IActionBuilder {
 	@Override
 	public void validate() throws ConfigurationException {
 		if (!getConfiguration().getActionBuilders().containsKey(getName())) {
-			throw new ConfigurationException("対応する動作が存在しません(" + this + ")");
+			throw new ConfigurationException("Corresponding operation does not exist(" + this + ")");
 		}
 	}
 

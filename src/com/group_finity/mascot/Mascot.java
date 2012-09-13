@@ -1,3 +1,5 @@
+/**Shimeji-ie*/
+
 package com.group_finity.mascot;
 
 import java.awt.Point;
@@ -8,22 +10,23 @@ import java.util.logging.Logger;
 
 import com.group_finity.mascot.action.Action;
 import com.group_finity.mascot.behavior.Behavior;
+import com.group_finity.mascot.config.Settings;
 import com.group_finity.mascot.environment.MascotEnvironment;
 import com.group_finity.mascot.exception.CantBeAliveException;
 import com.group_finity.mascot.image.MascotImage;
 import com.group_finity.mascot.image.TranslucentWindow;
 
 /**
- * マスコットオブジェクト.
+ * Mascot class object.
  *
- * マスコットは長期的で複雑な振る舞いをあらわす {@link Behavior} と、
- * 短期的で単調な動きを表す {@link Action} で動く.
+ * A mascot represents the long-term and complex behavior {@link Behavior} and
+ * an action {@link Action} represents a short-term monotic gesture.
  *
- * マスコットは内部的にタイマを持っていて、一定間隔ごとに {@link Action} を呼び出す.
- * {@link Action} は {@link #animate(Point, MascotImage, boolean)} メソッドなどを呼ぶことで
- * マスコットをアニメーションさせる.
+ * The mascot has an internal timer, which calls {@link Action} at a constant interval.
+ * {@link Action} is executed by calling the method {@link #animate(Point, MascotImage, boolean)}
+ * to animate the mascot.
  *
- * {@link Action} が終了したり、その他の特定のタイミングで {@link Behavior} が呼び出され、次の {@link Action} に移る.
+ * Once a {@link Action} has finished, following the {@link Behavior}  order, the next {@link Action} is called.
  *
  */
 public class Mascot {
@@ -33,77 +36,87 @@ public class Mascot {
 	private static final Logger log = Logger.getLogger(Mascot.class.getName());
 
 	/**
-	 * 最後に生成したマスコットのID.
+	 * Generated ID of the last mascot.
 	 */
 	private static AtomicInteger lastId = new AtomicInteger();
 
 	/**
-	 * マスコットのID.
-	 * デバッグ用のログを見やすくするためだけに存在する.
+	 * Current ID of this mascot.
+	 * It exists to make the log easier to read for debugging purposes.
 	 */
 	private final int id;
 
 	/**
-	 * マスコットを表示するウィンドウ.
+	 * Window that displays the mascot.
 	 */
 	private final TranslucentWindow window = NativeFactory.getInstance().newTransparentWindow();
 
 	/**
-	 * マスコットを管理しているマネージャ.
+	 * Manager that manages the mascot.
 	 */
 	private Manager manager = null;
 
 	/**
-	 * マスコットの接地座標.
-	 * たとえば足元や、ぶら下がっているときの手の部分など.
-	 * ここが画像を表示するときの中心になる.
+	 * Coordinates of the mascot.
+	 * For example it points the feet, or hands, or such as when you you are hanging it.
+	 * It becomes the center of the image displayed.
 	 */
 	private Point anchor = new Point(0, 0);
 
 	/**
-	 * 表示する画像.
+	 * Image to be displayed.
 	 */
 	private MascotImage image = null;
 
 	/**
-	 * 右向きかどうか.
-	 * オリジナル画像は左向きとして扱われるので、trueを設定すると反転して描画される.
+	 * Whether is looking right.
+	 * Drawn by flipping the original image treated as left.
 	 */
 	private boolean lookRight = false;
 
 	/**
-	 * 長期的な振る舞いをあらわすオブジェクト.
+	 * Object representing the long-term behavior.
 	 */
 	private Behavior behavior = null;
 
 	/**
-	 * タイマーの1チックごとに増加する時刻.
+	 * Time increased at every tick of the timer.
 	 */
 	private int time = 0;
 
 	/**
-	 * アニメーション実行中かどうか.
+	 * Whether an animation is running.
 	 */
 	private boolean animating = true;
 
 	/**
-	 * マスコットの表示環境.
+	 * Display enviroment of the mascot.
 	 */
 	private MascotEnvironment environment = new MascotEnvironment(this);
-
+	
+	/**
+	* Package name this mascot belongs to
+	*/
+	private String packageName = null;
+	
 	public Mascot() {
-		this.id = lastId.incrementAndGet();
-
-		log.log(Level.INFO, "マスコット生成({0})", this);
-
-		// 常に最善面に表示
-		getWindow().asJWindow().setAlwaysOnTop(true);
-
-		// マウスハンドラを登録
-		getWindow().asJWindow().addMouseListener(new MascotEventHandler(this));
-
+		this(Settings.getString("shimeji.cfg.default_mascot","default"));
 	}
 
+	public Mascot(String packageName)
+	{
+		this.id = lastId.incrementAndGet();
+		this.packageName = packageName;
+
+		log.log(Level.INFO, "Mascot constructor({0})", this);
+
+		// Better always on top
+		getWindow().asJWindow().setAlwaysOnTop(true);
+
+		// Register mouse handler
+		getWindow().asJWindow().addMouseListener(new MascotEventHandler(this));
+	}
+	
 	@Override
 	public String toString() {
 		return "マスコット" + this.id;
@@ -240,4 +253,9 @@ public class Mascot {
 	public MascotEnvironment getEnvironment() {
 		return environment;
 	}
+	
+	public String getPackageName()
+	{
+                return packageName;
+    }      
 }

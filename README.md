@@ -7,6 +7,17 @@ Currently it is based off the original source v.[2.2.2]
 
 Shimeji was originally created by Yuki Yamada of Group Finity (http://www.group-finity.com/Shimeji/)
 
+Features
+----------
+
+* Multilanguage (Currently supports italian/english)
+* Show different mascots at same time
+* Drop&Play (put your mascot package/folder inside the "mascots" folder)
+* Fully upports legacy mascots made for the original Shimeji
+* Partial support for shimeji-ee configurations (enabling this compatibility mode disables the other)
+
+Please have a look at /conf/settings.cfg for further details
+
 Installation guide:
 ----------
 
@@ -17,12 +28,22 @@ Installation guide:
 Changelog
 ----------
 
-> [1.0.0]
+[1.1.0]
+> Mascot package system
+>
+> Menu localization
+
+[1.0.0]
 > Basic actions translated
+>
 > Added installer
 
-TODO/Incoming features
+TODO/Incoming features/Known issues
 ----------
 
-* "Drop & play" system
-* Show different Shimeji
+* Better memory management
+* Centralized package system
+* Eclipse project file (for developers only)
+* Editor
+* Mac & Linux support (not a priority for now)
+* Idea of the moment xP

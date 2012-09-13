@@ -1,3 +1,5 @@
+/**Shimeji-ie*/
+
 package com.group_finity.mascot.config;
 
 import java.util.ArrayList;
@@ -9,6 +11,7 @@ import java.util.logging.Logger;
 
 import com.group_finity.mascot.behavior.Behavior;
 import com.group_finity.mascot.behavior.UserBehavior;
+import com.group_finity.mascot.config.Settings;
 import com.group_finity.mascot.exception.ActionInstantiationException;
 import com.group_finity.mascot.exception.BehaviorInstantiationException;
 import com.group_finity.mascot.exception.ConfigurationException;
@@ -38,34 +41,34 @@ public class BehaviorBuilder {
 
 	public BehaviorBuilder(final Configuration configuration, final Entry behaviorNode, final List<String> conditions) {
 		this.configuration = configuration;
-		this.name = behaviorNode.getAttribute("名前");
-		this.actionName = behaviorNode.getAttribute("動作") == null ? getName() : behaviorNode.getAttribute("動作");
-		this.frequency = Integer.parseInt(behaviorNode.getAttribute("頻度"));
+		this.name = behaviorNode.getAttribute(Settings.getString("shimeji.mapper.name","名前"));
+		this.actionName = behaviorNode.getAttribute(Settings.getString("shimeji.mapper.action","動作")) == null ? getName() : behaviorNode.getAttribute(Settings.getString("shimeji.mapper.action","動作"));
+		this.frequency = Integer.parseInt(behaviorNode.getAttribute(Settings.getString("shimeji.mapper.frequency","頻度")));
 		this.conditions = new ArrayList<String>(conditions);
-		this.getConditions().add(behaviorNode.getAttribute("条件"));
+		this.getConditions().add(behaviorNode.getAttribute(Settings.getString("shimeji.mapper.condition","条件")));
 
-		log.log(Level.INFO, "行動読み込み開始({0})", this);
+		log.log(Level.INFO, "Starting reading actions({0})", this);
 
 		this.getParams().putAll(behaviorNode.getAttributes());
-		this.getParams().remove("名前");
-		this.getParams().remove("動作");
-		this.getParams().remove("頻度");
-		this.getParams().remove("条件");
+		this.getParams().remove(Settings.getString("shimeji.mapper.name","名前"));
+		this.getParams().remove(Settings.getString("shimeji.mapper.action","動作"));
+		this.getParams().remove(Settings.getString("shimeji.mapper.frequency","頻度"));
+		this.getParams().remove(Settings.getString("shimeji.mapper.condition","条件"));
 
 		boolean nextAdditive = true;
 
-		for (final Entry nextList : behaviorNode.selectChildren("次の行動リスト")) {
+		for (final Entry nextList : behaviorNode.selectChildren(Settings.getString("shimeji.mapper.next_behavior","次の行動リスト"))) {
 
-			log.log(Level.INFO, "次の行動リスト...");
+			log.log(Level.INFO, "Next behavior...");
 
-			nextAdditive = Boolean.parseBoolean(nextList.getAttribute("追加"));
+			nextAdditive = Boolean.parseBoolean(nextList.getAttribute(Settings.getString("shimeji.mapper.add","追加")));
 
 			loadBehaviors(nextList, new ArrayList<String>());
 		}
 
 		this.nextAdditive = nextAdditive;
 
-		log.log(Level.INFO, "行動読み込み完了({0})", this);
+		log.log(Level.INFO, "Ended reading actions({0})", this);
 
 	}
 
@@ -78,14 +81,14 @@ public class BehaviorBuilder {
 
 		for (final Entry node : list.getChildren()) {
 
-			if (node.getName().equals("条件")) {
+			if (node.getName().equals(Settings.getString("shimeji.mapper.condition","条件"))) {
 
 				final List<String> newConditions = new ArrayList<String>(conditions);
-				newConditions.add(node.getAttribute("条件"));
+				newConditions.add(node.getAttribute(Settings.getString("shimeji.mapper.condition","条件")));
 
 				loadBehaviors(node, newConditions);
 
-			} else if (node.getName().equals("行動参照")) {
+			} else if (node.getName().equals(Settings.getString("shimeji.mapper.behavior_reference","行動参照"))) {
 				final BehaviorBuilder behavior = new BehaviorBuilder(getConfiguration(), node, conditions);
 				getNextBehaviorBuilders().add(behavior);
 			}
@@ -95,7 +98,7 @@ public class BehaviorBuilder {
 	public void validate() throws ConfigurationException {
 
 		if ( !getConfiguration().getActionBuilders().containsKey(getActionName()) ) {
-			throw new ConfigurationException("対応する動作が存在しません("+this+")");
+			throw new ConfigurationException("The corresponding action does not exist("+this+")");
 		}
 	}
 
@@ -106,7 +109,7 @@ public class BehaviorBuilder {
 						getConfiguration().buildAction(getActionName(),
 								getParams()), getConfiguration() );
 		} catch (final ActionInstantiationException e) {
-			throw new BehaviorInstantiationException("対応する動作の初期化に失敗しました("+this+")", e);
+			throw new BehaviorInstantiationException("Failed to initialize the corresponding behavior("+this+")", e);
 		}
 	}
 
