@@ -4,6 +4,7 @@ Shimeji-ie (Italian Enhanced)
 Italian translation of the Shimeji desktop mascot.
 This fork aims to improve the original project and make it easier to use and maintain also for those coming from different versions.
 Currently it is based off the original source v.[2.2.2]
+For further details, check out the wiki at http://github.com/Robotex/Shimeji-ie/wiki
 
 Shimeji was originally created by Yuki Yamada of Group Finity (http://www.group-finity.com/Shimeji/)
 
@@ -13,7 +14,7 @@ Features
 * Multilanguage (Currently supports italian/english)
 * Show different mascots at same time
 * Drop&Play (put your mascot package/folder inside the "mascots" folder)
-* Fully upports legacy mascots made for the original Shimeji
+* Fully supports legacy mascots made for the original Shimeji
 * Partial support for shimeji-ee configurations (enabling this compatibility mode disables the other)
 
 Please have a look at /conf/settings.cfg for further details
